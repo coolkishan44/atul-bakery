@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atul Bakery - KIM | Digital Loyalty Card</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind Custom Color Theme -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bakery: {
+                            pink: '#FFF1F2',
+                            rose: '#F43F5E',
+                            darkrose: '#E11D48',
+                            cream: '#FFFBEB',
+                            gold: '#D97706',
+                            peach: '#FFEDD5'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .stamp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+        @media (min-width: 640px) { .stamp-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    </style>
+</head>
+<body class="bg-bakery-pink min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-md bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0">
+                    <img src="https://placehold.co/100x100/E11D48/FFFFFF?text=ATUL" onerror="this.src='https://placehold.co/100x100/E11D48/FFFFFF?text=ABK'" alt="Atul Bakery Kim Logo" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h1 class="font-bold text-base sm:text-lg leading-tight text-slate-900">Atul Bakery - KIM</h1>
+                    <p class="text-xs text-slate-500">6 + 1 Cake Free • Under ₹400 &bull; <a href="https://instagram.com/Atul_bakery_kim" target="_blank" class="text-rose-600 font-semibold hover:underline"><i class="fa-brands fa-instagram"></i> @Atul_bakery_kim</a></p>
+                </div>
+            </div>
+            <!-- Navigation Tabs -->
+            <div class="flex bg-slate-100 p-1 rounded-xl text-xs sm:text-sm font-medium">
+                <button onclick="switchTab('customer')" id="tab-customer" class="px-3 py-1.5 rounded-lg transition text-bakery-darkrose bg-white shadow-sm">
+                    <i class="fa-solid fa-user mr-1"></i> Customer
+                </button>
+                <button onclick="switchTab('counter')" id="tab-counter" class="px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-qrcode mr-1"></i> Shop Counter
+                </button>
+                <button onclick="switchTab('admin')" id="tab-admin" class="px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Owner Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
+
+        <!-- ================= CUSTOMER VIEW ================= -->
+        <div id="view-customer" class="space-y-6">
+            <!-- Login / Phone lookup card with PIN protection -->
+            <div id="customer-login-box" class="bg-white p-6 rounded-2xl shadow-sm border border-rose-100 max-w-md mx-auto text-center">
+                <div class="w-20 h-20 rounded-2xl overflow-hidden shadow-md mx-auto mb-4 border border-rose-200">
+                    <img src="https://placehold.co/150x150/E11D48/FFFFFF?text=ATUL" onerror="this.src='https://placehold.co/150x150/E11D48/FFFFFF?text=ABK'" alt="Atul Bakery Kim" class="w-full h-full object-cover">
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 mb-1">Atul Bakery - KIM Loyalty Card</h2>
+                <p class="text-sm text-slate-500 mb-6">Enter your mobile number and 4-digit security PIN to access your personal card securely.</p>
+                
+                <div class="space-y-3">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-medium">+91</span>
+                        <input type="tel" id="customer-phone" maxlength="10" placeholder="Enter 10-digit mobile number" class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-bakery-rose text-lg font-semibold tracking-wider">
+                    </div>
+                    
+                    <div id="pin-input-container">
+                        <input type="password" id="customer-pin" maxlength="4" placeholder="Enter 4-Digit Security PIN" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-bakery-rose text-center text-lg font-bold tracking-widest">
+                        <p id="pin-hint" class="text-xs text-slate-500 mt-1.5 font-medium">New number? A 4-digit PIN will be set instantly.</p>
+                    </div>
+
+                    <button onclick="handleCustomerAuth()" id="auth-btn" class="w-full bg-bakery-darkrose hover:bg-rose-700 text-white font-semibold py-3 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+                        <span>Open My Card</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="mt-4 flex items-center justify-center space-x-3 text-xs text-slate-500">
+                    <span><i class="fa-solid fa-phone text-rose-500 mr-1"></i> 70437 59959</span>
+                    <span>&bull;</span>
+                    <a href="https://instagram.com/Atul_bakery_kim" target="_blank" class="text-rose-600 font-semibold hover:underline"><i class="fa-brands fa-instagram mr-1"></i> @Atul_bakery_kim</a>
+                </div>
+            </div>
+
+            <!-- Customer Dashboard (Hidden by default until login) -->
+            <div id="customer-dashboard" class="hidden space-y-6">
+                <!-- Welcome & Card Header -->
+                <div class="bg-gradient-to-r from-rose-500 to-bakery-darkrose rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-8 -bottom-8 opacity-10 text-9xl">
+                        <i class="fa-solid fa-cake-candles"></i>
+                    </div>
+                    <div class="flex justify-between items-start relative z-10">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-xl overflow-hidden shadow bg-white p-0.5 flex-shrink-0">
+                                <img src="https://placehold.co/100x100/E11D48/FFFFFF?text=ATUL" onerror="this.src='https://placehold.co/100x100/E11D48/FFFFFF?text=ABK'" alt="Logo" class="w-full h-full object-cover rounded-lg">
+                            </div>
+                            <div>
+                                <span class="bg-white/20 text-xs px-2 py-0.5 rounded-full font-medium tracking-wide">Atul Bakery Kim VIP</span>
+                                <h2 id="card-username" class="text-xl sm:text-2xl font-bold mt-1">Priya Sharma</h2>
+                                <p id="card-phone-display" class="text-rose-100 text-xs sm:text-sm">Phone: +91 98765 43210</p>
+                            </div>
+                        </div>
+                        <button onclick="logoutCustomer()" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition">
+                            <i class="fa-solid fa-right-from-bracket mr-1"></i> Switch
+                        </button>
+                    </div>
+
+                    <!-- 50 Day Window Progress -->
+                    <div class="mt-6 pt-4 border-t border-rose-400/40 flex flex-wrap justify-between items-center gap-2">
+                        <div class="flex items-center space-x-2 text-xs sm:text-sm">
+                            <i class="fa-regular fa-clock text-rose-200"></i>
+                            <span id="timer-text" class="font-medium">50 Days Remaining in Cycle</span>
+                        </div>
+                        <div class="text-[11px] bg-white/20 px-2.5 py-1 rounded-md">
+                            6 Stamps + 1 Free Cake (Max ₹400)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stamp Card Visual -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Your Stamp Collection</h3>
+                            <p class="text-xs text-slate-500">Collect 6 stamps at Atul Bakery Kim to unlock your Free Cake!</p>
+                        </div>
+                        <span id="stamp-count-badge" class="bg-rose-50 text-bakery-darkrose px-3 py-1 rounded-full text-sm font-bold">
+                            0 / 6 Stamps
+                        </span>
+                    </div>
+
+                    <!-- Stamp Grid (6 standard + 1 free reward slot) -->
+                    <div class="stamp-grid mb-6" id="stamp-container">
+                        <!-- Rendered via JS -->
+                    </div>
+
+                    <!-- Reward Status Banner -->
+                    <div id="reward-banner" class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between hidden">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-sm">
+                                <i class="fa-solid fa-gift"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-amber-900 text-sm">Free Cake Unlocked! (Under ₹400)</h4>
+                                <p class="text-xs text-amber-700">Show this screen at counter (Ph: 70437 59959) to claim your free treat.</p>
+                            </div>
+                        </div>
+                        <button onclick="claimReward()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow transition">
+                            Claim Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Eligible Free Cake Menu (Under Rs. 400 Rule) -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-lg text-slate-900 mb-1">Eligible Free Cake Options (Under ₹400)</h3>
+                    <p class="text-xs text-slate-500 mb-4">When you complete 6 stamps at Atul Bakery Kim, choose any of these celebration cakes for ₹0:</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col justify-between">
+                            <div>
+                                <div class="h-28 bg-rose-100 rounded-lg mb-2 flex items-center justify-center text-bakery-darkrose font-bold text-3xl">
+                                    <i class="fa-solid fa-cake-candles"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-sm">Classic Choco Truffle Slice</h4>
+                                <p class="text-xs text-slate-500 mt-1">Rich moist chocolate cake with dark ganache.</p>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between">
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Free (Worth ₹350)</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col justify-between">
+                            <div>
+                                <div class="h-28 bg-pink-100 rounded-lg mb-2 flex items-center justify-center text-pink-600 font-bold text-3xl">
+                                    <i class="fa-solid fa-heart"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-sm">Strawberry Velvet Box</h4>
+                                <p class="text-xs text-slate-500 mt-1">Light sponge layered with fresh strawberry cream.</p>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between">
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Free (Worth ₹380)</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col justify-between">
+                            <div>
+                                <div class="h-28 bg-amber-100 rounded-lg mb-2 flex items-center justify-center text-amber-600 font-bold text-3xl">
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-sm">Pineapple Fresh Cream</h4>
+                                <p class="text-xs text-slate-500 mt-1">Classic airy sponge filled with juicy pineapple bits.</p>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between">
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Free (Worth ₹320)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connect Banner -->
+                <div class="bg-gradient-to-r from-rose-50 to-amber-50 p-4 rounded-2xl border border-rose-200 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-rose-600 text-white rounded-full flex items-center justify-center text-lg">
+                            <i class="fa-brands fa-instagram"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-900">Follow Atul Bakery on Instagram!</p>
+                            <p class="text-slate-500">Check out daily fresh bakes @Atul_bakery_kim</p>
+                        </div>
+                    </div>
+                    <a href="https://instagram.com/Atul_bakery_kim" target="_blank" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2.5 rounded-xl shadow transition">
+                        <i class="fa-brands fa-instagram mr-1.5"></i> Follow Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SHOP COUNTER VIEW (DYNAMIC QR SIMULATOR) ================= -->
+        <div id="view-counter" class="hidden space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100 max-w-lg mx-auto text-center">
+                <div class="w-16 h-16 rounded-2xl overflow-hidden shadow mx-auto mb-3 border border-rose-200">
+                    <img src="https://placehold.co/100x100/E11D48/FFFFFF?text=ATUL" onerror="this.src='https://placehold.co/100x100/E11D48/FFFFFF?text=ABK'" alt="Logo" class="w-full h-full object-cover">
+                </div>
+                <div class="inline-block bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold mb-2">
+                    <i class="fa-solid fa-circle-dot animate-pulse mr-1"></i> Atul Bakery - Kim Counter
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 mb-1">Scan to Collect Stamp</h2>
+                <p class="text-xs text-slate-500 mb-6">Customers scan this counter QR code with their mobile phone camera while paying.</p>
+
+                <!-- Dynamic QR Box -->
+                <div class="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-300 inline-block mb-4 relative">
+                    <div id="qr-code-display" class="w-48 h-48 bg-white p-3 rounded-xl shadow-sm flex flex-col items-center justify-center border border-slate-200 mx-auto">
+                        <svg class="w-36 h-36 text-slate-800" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2 2h8v8H2V2m2 2v4h4V4H4m10-2h8v8h-8V2m2 2v4h4V4h-4M2 14h8v8H2v-8m2 2v4h4v-4H4m13-3h3v3h-3v-3m-3 0h3v3h-3v-3m3 3h3v3h-3v-3m-3 3h3v3h-3v-3m6 0h1v4h-1v-4m-4-7h3v3h-3v-3m-3 7h3v3h-3v-3m3-3h3v3h-3v-3z"/>
+                        </svg>
+                        <div id="qr-token-text" class="text-[10px] font-mono text-slate-500 mt-2 font-bold">TOKEN: ABK-8492</div>
+                    </div>
+                    <!-- Countdown timer for rotation -->
+                    <div class="mt-3 flex items-center justify-center space-x-1.5 text-xs text-slate-600 font-medium">
+                        <i class="fa-solid fa-rotate text-bakery-darkrose animate-spin"></i>
+                        <span>Refreshes in <span id="qr-countdown" class="font-bold text-bakery-darkrose">30</span>s (Fraud Prevention)</span>
+                    </div>
+                </div>
+
+                <div class="bg-rose-50 p-4 rounded-xl text-left border border-rose-100 text-xs text-rose-900 space-y-1 mb-6">
+                    <p class="font-bold"><i class="fa-solid fa-shield-halved mr-1"></i> Shop Helpline: 70437 59959</p>
+                    <p class="text-rose-700">QR code rotates every 30 seconds so remote customers cannot take screenshots from home. Physical presence at Atul Bakery Kim is verified!</p>
+                </div>
+
+                <!-- Simulation Action for Testing -->
+                <div class="border-t border-slate-100 pt-4">
+                    <p class="text-xs text-slate-500 mb-2">Testing mode: Simulate customer scanning counter</p>
+                    <div class="flex gap-2">
+                        <select id="simulate-customer-select" class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium">
+                            <option value="9876543210">Priya Sharma (9876543210 - 3 stamps)</option>
+                            <option value="9123456789">Rahul Verma (9123456789 - 5 stamps)</option>
+                        </select>
+                        <button onclick="simulateScan()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition whitespace-nowrap">
+                            <i class="fa-solid fa-qrcode mr-1"></i> Simulate Scan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= OWNER / ADMIN VIEW ================= -->
+        <div id="view-admin" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden shadow bg-rose-50 border border-rose-200 flex-shrink-0">
+                            <img src="https://placehold.co/100x100/E11D48/FFFFFF?text=ATUL" onerror="this.src='https://placehold.co/100x100/E11D48/FFFFFF?text=ABK'" alt="Logo" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Atul Bakery - Kim Admin Dashboard</h2>
+                            <p class="text-xs text-slate-500">Helpline: 70437 59959 &bull; Insta: <a href="https://instagram.com/Atul_bakery_kim" target="_blank" class="text-rose-600 hover:underline">@Atul_bakery_kim</a></p>
+                        </div>
+                    </div>
+                    <button onclick="openAddCustomerModal()" class="bg-bakery-darkrose hover:bg-rose-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Register New Customer</span>
+                    </button>
+                </div>
+
+                <!-- Quick Stats Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-rose-50 p-4 rounded-xl border border-rose-100">
+                        <p class="text-xs text-rose-600 font-medium">Total Active Members</p>
+                        <p id="stat-total-members" class="text-2xl font-bold text-slate-900 mt-1">3</p>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-100">
+                        <p class="text-xs text-amber-600 font-medium">Free Cakes Redeemed</p>
+                        <p id="stat-redeemed" class="text-2xl font-bold text-slate-900 mt-1">12</p>
+                    </div>
+                    <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                        <p class="text-xs text-emerald-600 font-medium">Offer Active</p>
+                        <p class="text-lg font-bold text-emerald-700 mt-1">6 + 1 Free (Max ₹400)</p>
+                    </div>
+                </div>
+
+                <!-- Customer Table -->
+                <h3 class="font-bold text-sm text-slate-900 mb-3">Customer Directory</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
+                                <th class="p-3">Customer Name</th>
+                                <th class="p-3">Phone Number</th>
+                                <th class="p-3">Stamps</th>
+                                <th class="p-3">Days Left</th>
+                                <th class="p-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-customer-table">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Notification Toast / Message Box (Replaces alert) -->
+    <div id="toast-box" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 max-w-sm">
+        <div id="toast-content" class="bg-slate-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center space-x-3 text-sm">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+            <span id="toast-message">Action completed successfully!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-top border-slate-200 py-4 mt-12 text-center text-xs text-slate-400">
+        <p>Atul Bakery - KIM &bull; Phone: 70437 59959 &bull; Instagram: <a href="https://instagram.com/Atul_bakery_kim" target="_blank" class="text-rose-600 hover:underline">@Atul_bakery_kim</a></p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Initial Database Mock with PIN support
+        let customers = [
+            { name: "Priya Sharma", phone: "9876543210", pin: "1234", stamps: 3, daysLeft: 42, redeemedCount: 1 },
+            { name: "Rahul Verma", phone: "9123456789", pin: "5678", stamps: 5, daysLeft: 28, redeemedCount: 2 }
+        ];
+
+        let currentLoggedInPhone = null;
+        let qrTimerSeconds = 30;
+        let currentQRToken = "ABK-8492";
+
+        // Tab Switcher
+        function switchTab(tabName) {
+            document.getElementById('view-customer').classList.add('hidden');
+            document.getElementById('view-counter').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+
+            document.getElementById('tab-customer').className = "px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900";
+            document.getElementById('tab-counter').className = "px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900";
+            document.getElementById('tab-admin').className = "px-3 py-1.5 rounded-lg transition text-slate-600 hover:text-slate-900";
+
+            document.getElementById('view-' + tabName).classList.remove('hidden');
+            document.getElementById('tab-' + tabName).className = "px-3 py-1.5 rounded-lg transition text-bakery-darkrose bg-white shadow-sm font-medium";
+
+            if (tabName === 'admin') {
+                renderAdminTable();
+            }
+        }
+
+        // Customer Authentication Handler with PIN Security
+        function handleCustomerAuth() {
+            const phoneInput = document.getElementById('customer-phone').value.trim();
+            const pinInput = document.getElementById('customer-pin').value.trim();
+
+            if (phoneInput.length !== 10) {
+                showToast("Please enter a valid 10-digit mobile number.", "error");
+                return;
+            }
+
+            let customer = customers.find(c => c.phone === phoneInput);
+
+            if (!customer) {
+                // Customer does not exist -> Require 4-digit PIN setup
+                if (pinInput.length !== 4) {
+                    showToast("Please set a 4-digit security PIN for your new account.", "warning");
+                    return;
+                }
+
+                customer = { 
+                    name: "Atul Bakery Guest (" + phoneInput.slice(-4) + ")", 
+                    phone: phoneInput, 
+                    pin: pinInput, 
+                    stamps: 0, 
+                    daysLeft: 50, 
+                    redeemedCount: 0 
+                };
+                customers.push(customer);
+                showToast("Account created with secure PIN successfully!", "success");
+            } else {
+                // Customer exists -> Validate PIN
+                if (pinInput.length !== 4) {
+                    showToast("Please enter your 4-digit security PIN.", "warning");
+                    return;
+                }
+
+                if (customer.pin !== pinInput) {
+                    showToast("Incorrect Security PIN! Access denied.", "error");
+                    return;
+                }
+
+                showToast("Welcome back to Atul Bakery Kim, " + customer.name + "!", "success");
+            }
+
+            currentLoggedInPhone = phoneInput;
+            document.getElementById('customer-login-box').classList.add('hidden');
+            document.getElementById('customer-dashboard').classList.remove('hidden');
+            renderCustomerDashboard();
+        }
+
+        function logoutCustomer() {
+            currentLoggedInPhone = null;
+            document.getElementById('customer-dashboard').classList.add('hidden');
+            document.getElementById('customer-login-box').classList.remove('hidden');
+            document.getElementById('customer-phone').value = "";
+            document.getElementById('customer-pin').value = "";
+        }
+
+        // Render Customer Dashboard
+        function renderCustomerDashboard() {
+            const customer = customers.find(c => c.phone === currentLoggedInPhone);
+            if (!customer) return;
+
+            document.getElementById('card-username').innerText = customer.name;
+            document.getElementById('card-phone-display').innerText = "Phone: +91 " + customer.phone;
+            document.getElementById('timer-text').innerText = customer.daysLeft + " Days Remaining in Cycle";
+            document.getElementById('stamp-count-badge').innerText = customer.stamps + " / 6 Stamps";
+
+            // Render Stamp Slots (6 standard + 1 free reward slot)
+            const container = document.getElementById('stamp-container');
+            container.innerHTML = "";
+
+            for (let i = 1; i <= 6; i++) {
+                const isStamped = i <= customer.stamps;
+                const slot = document.createElement('div');
+                slot.className = `aspect-square rounded-xl border-2 flex flex-col items-center justify-center transition-all ${isStamped ? 'bg-rose-50 border-rose-400 text-bakery-darkrose shadow-sm' : 'bg-slate-50 border-dashed border-slate-300 text-slate-300'}`;
+                
+                if (isStamped) {
+                    slot.innerHTML = `
+                        <i class="fa-solid fa-cake-candles text-xl mb-1"></i>
+                        <span class="text-[10px] font-bold">Stamp #${i}</span>
+                    `;
+                } else {
+                    slot.innerHTML = `
+                        <span class="text-xs font-semibold text-slate-400">${i}</span>
+                        <span class="text-[9px] text-slate-400">Empty</span>
+                    `;
+                }
+                container.appendChild(slot);
+            }
+
+            // 7th Free Reward Slot
+            const freeSlot = document.createElement('div');
+            const isRewardReady = customer.stamps >= 6;
+            freeSlot.className = `aspect-square rounded-xl border-2 flex flex-col items-center justify-center transition-all col-span-3 sm:col-span-1 ${isRewardReady ? 'bg-amber-100 border-amber-500 text-amber-800 shadow-md animate-pulse' : 'bg-slate-100 border-dashed border-slate-300 text-slate-400'}`;
+            freeSlot.innerHTML = `
+                <i class="fa-solid fa-gift text-2xl mb-1"></i>
+                <span class="text-[10px] font-bold">FREE CAKE</span>
+                <span class="text-[8px] opacity-75">(Under ₹400)</span>
+            `;
+            container.appendChild(freeSlot);
+
+            // Reward banner control
+            const rewardBanner = document.getElementById('reward-banner');
+            if (isRewardReady) {
+                rewardBanner.classList.remove('hidden');
+            } else {
+                rewardBanner.classList.add('hidden');
+            }
+        }
+
+        // Claim Reward Action
+        function claimReward() {
+            const customer = customers.find(c => c.phone === currentLoggedInPhone);
+            if (!customer || customer.stamps < 6) return;
+
+            customer.stamps = 0; // Reset for new cycle
+            customer.daysLeft = 50; // Reset 50-day window
+            customer.redeemedCount++;
+            
+            showToast("Free cake claimed at Atul Bakery Kim! Card reset for next cycle.", "success");
+            renderCustomerDashboard();
+        }
+
+        // Dynamic QR Rotation Timer
+        function startQRTimer() {
+            setInterval(() => {
+                qrTimerSeconds--;
+                if (qrTimerSeconds <= 0) {
+                    qrTimerSeconds = 30;
+                    const randomCode = Math.floor(1000 + Math.random() * 9000);
+                    currentQRToken = "ABK-" + randomCode;
+                    document.getElementById('qr-token-text').innerText = "TOKEN: " + currentQRToken;
+                }
+                const countdownEl = document.getElementById('qr-countdown');
+                if (countdownEl) countdownEl.innerText = qrTimerSeconds;
+            }, 1000);
+        }
+
+        // Simulate Counter Scan
+        function simulateScan() {
+            const select = document.getElementById('simulate-customer-select');
+            const phone = select.value;
+            const customer = customers.find(c => c.phone === phone);
+
+            if (customer) {
+                if (customer.stamps < 6) {
+                    customer.stamps++;
+                    showToast("Stamp added for " + customer.name + " at Atul Bakery Kim! (" + customer.stamps + "/6)", "success");
+                } else {
+                    showToast(customer.name + " already has 6 stamps! Ready for free cake redemption.", "warning");
+                }
+                if (currentLoggedInPhone === phone) {
+                    renderCustomerDashboard();
+                }
+            }
+        }
+
+        // Admin Table Render
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-customer-table');
+            tbody.innerHTML = "";
+
+            document.getElementById('stat-total-members').innerText = customers.length;
+            const totalRedeemed = customers.reduce((acc, c) => acc + c.redeemedCount, 0);
+            document.getElementById('stat-redeemed').innerText = totalRedeemed + 12;
+
+            customers.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-100 hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-900">${c.name}</td>
+                    <td class="p-3 text-slate-600">+91 ${c.phone}</td>
+                    <td class="p-3">
+                        <span class="bg-rose-50 text-bakery-darkrose px-2.5 py-1 rounded-full font-bold text-xs">${c.stamps} / 6</span>
+                    </td>
+                    <td class="p-3 text-slate-600">${c.daysLeft} Days</td>
+                    <td class="p-3 text-right space-x-2">
+                        <button onclick="adminAddStamp('${c.phone}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-semibold transition" title="Add Stamp">
+                            <i class="fa-solid fa-plus mr-1"></i> Stamp
+                        </button>
+                        <button onclick="adminResetCard('${c.phone}')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition" title="Reset Card">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function adminAddStamp(phone) {
+            const customer = customers.find(c => c.phone === phone);
+            if (customer) {
+                if (customer.stamps < 6) {
+                    customer.stamps++;
+                    showToast("Added stamp for " + customer.name, "success");
+                    renderAdminTable();
+                    if (currentLoggedInPhone === phone) renderCustomerDashboard();
+                } else {
+                    showToast("Customer already has 6 stamps!", "warning");
+                }
+            }
+        }
+
+        function adminResetCard(phone) {
+            const customer = customers.find(c => c.phone === phone);
+            if (customer) {
+                customer.stamps = 0;
+                customer.daysLeft = 50;
+                showToast("Reset card for " + customer.name, "success");
+                renderAdminTable();
+                if (currentLoggedInPhone === phone) renderCustomerDashboard();
+            }
+        }
+
+        function openAddCustomerModal() {
+            const name = prompt("Enter Customer Name:");
+            if (!name) return;
+            const phone = prompt("Enter 10-digit Mobile Number:");
+            if (!phone || phone.length !== 10) {
+                showToast("Invalid 10-digit phone number.", "error");
+                return;
+            }
+
+            if (customers.some(c => c.phone === phone)) {
+                showToast("Customer with this phone already exists!", "error");
+                return;
+            }
+
+            customers.push({ name: name, phone: phone, pin: "1234", stamps: 0, daysLeft: 50, redeemedCount: 0 });
+            showToast("Customer registered successfully with default PIN 1234!", "success");
+            renderAdminTable();
+        }
+
+        // Custom Toast Notification System
+        function showToast(message, type = "success") {
+            const toast = document.getElementById('toast-box');
+            const messageEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            messageEl.innerText = message;
+            if (type === "success") {
+                iconEl.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            } else if (type === "warning") {
+                iconEl.className = "fa-solid fa-triangle-exclamation text-amber-400 text-lg";
+            } else {
+                iconEl.className = "fa-solid fa-circle-xmark text-rose-400 text-lg";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        window.onload = function() {
+            startQRTimer();
+        }
+    </script>
+</body>
+</html>
